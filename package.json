@@ -1,0 +1,19 @@
+{
+  "name": "darosadev-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darosadev/darosadev-web.git"
+  },
+  "author": "darosa.dev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/darosadev/darosadev-web/issues"
+  },
+  "homepage": "https://github.com/darosadev/darosadev-web#readme"
+}
