@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
   },
   "repository": {
     "type": "git",
@@ -15,5 +18,13 @@
   "bugs": {
     "url": "https://github.com/darosadev/darosadev-web/issues"
   },
-  "homepage": "https://github.com/darosadev/darosadev-web#readme"
+  "homepage": "https://github.com/darosadev/darosadev-web#readme",
+  "dependencies": {
+    "@astrojs/react": "^3.6.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "astro": "^4.11.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
 }
