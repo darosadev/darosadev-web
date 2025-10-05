@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 /// <reference types="vitest/config" />
 import tailwindcss from '@tailwindcss/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';
@@ -6,6 +7,7 @@ import { defineConfig } from 'vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+
 const dirname =
 	typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
@@ -50,11 +52,7 @@ export default defineConfig({
 						enabled: true,
 						headless: true,
 						provider: 'playwright',
-						instances: [
-							{
-								browser: 'chromium'
-							}
-						]
+						instances: [{ browser: 'chromium' }]
 					},
 					setupFiles: ['.storybook/vitest.setup.ts']
 				}
