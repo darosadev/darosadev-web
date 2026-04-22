@@ -25,15 +25,16 @@
 	});
 </script>
 
-<section id="about" class="relative z-10 py-24 px-6">
+<section id="about" class="relative z-10 py-16 sm:py-24 px-4 sm:px-6">
 	<div class="max-w-3xl mx-auto">
 		<div class="flex items-center gap-3 mb-10">
-			<div class="h-px flex-1 bg-ctp-surface0"></div>
-			<span class="text-xs font-medium text-ctp-overlay0 uppercase tracking-widest">About</span>
+			<span class="text-xs font-medium text-ctp-text uppercase tracking-widest">
+				<span class="text-ctp-overlay0">&lt;</span>about<span class="text-ctp-overlay0">/&gt;</span>
+			</span>
 			<div class="h-px flex-1 bg-ctp-surface0"></div>
 		</div>
 
-		<div id="about-content" class="rounded-lg border border-ctp-surface0/60 bg-ctp-mantle/60 overflow-hidden">
+		<div id="about-content" class="rounded-lg border border-ctp-surface0 bg-ctp-mantle overflow-hidden">
 			<!-- Fake terminal header -->
 			<div class="flex items-center gap-2 px-4 py-2.5 border-b border-ctp-surface0 bg-ctp-crust/50">
 				<span class="text-[10px] text-ctp-overlay0 font-medium">joaquim@darosa.dev</span>
@@ -44,7 +45,7 @@
 			</div>
 
 			<div class="p-6 font-mono text-xs leading-relaxed space-y-4">
-				<div class="grid grid-cols-[120px_1fr] gap-2">
+				<div class="grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-2">
 					<span class="text-ctp-blue font-semibold">name</span>
 					<span class="text-ctp-text">Joaquim Rosa</span>
 

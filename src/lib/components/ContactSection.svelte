@@ -32,15 +32,16 @@
 	});
 </script>
 
-<section id="contact" class="relative z-10 py-24 px-6">
+<section id="contact" class="relative z-10 py-16 sm:py-24 px-4 sm:px-6">
 	<div class="max-w-3xl mx-auto">
 		<div class="flex items-center gap-3 mb-10">
-			<div class="h-px flex-1 bg-ctp-surface0"></div>
-			<span class="text-xs font-medium text-ctp-overlay0 uppercase tracking-widest">Contact</span>
+			<span class="text-xs font-medium text-ctp-text uppercase tracking-widest">
+				<span class="text-ctp-overlay0">&lt;</span>contact<span class="text-ctp-overlay0">/&gt;</span>
+			</span>
 			<div class="h-px flex-1 bg-ctp-surface0"></div>
 		</div>
 
-		<div id="contact-content" class="rounded-lg border border-ctp-surface0/60 bg-ctp-mantle/60 overflow-hidden">
+		<div id="contact-content" class="rounded-lg border border-ctp-surface0 bg-ctp-mantle overflow-hidden">
 			<div class="flex items-center gap-2 px-4 py-2.5 border-b border-ctp-surface0 bg-ctp-crust/50">
 				<span class="text-[10px] text-ctp-overlay0 font-medium">joaquim@darosa.dev</span>
 				<span class="text-ctp-surface1">:</span>
@@ -61,9 +62,9 @@
 							href={link.href}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="flex flex-col items-center gap-2 p-4 rounded-md border border-ctp-surface0/40 bg-ctp-surface0/20 hover:bg-ctp-surface0/40 hover:border-ctp-surface1/60 transition-all duration-200 group"
+							class="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-md border border-ctp-surface0/40 bg-ctp-surface0/20 hover:bg-ctp-surface0/40 hover:border-ctp-surface1/60 transition-all duration-200 group"
 						>
-							<span class="text-lg text-ctp-subtext0 group-hover:text-ctp-lavender transition-colors font-mono">~/{link.label}</span>
+							<span class="text-sm sm:text-lg text-ctp-subtext0 group-hover:text-ctp-lavender transition-colors font-mono truncate max-w-full">~/{link.label}</span>
 							<span class="text-[10px] text-ctp-overlay0 group-hover:text-ctp-text transition-colors">{link.label}</span>
 						</a>
 					{/each}

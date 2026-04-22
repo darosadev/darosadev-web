@@ -82,22 +82,22 @@
 <section class="min-h-[90vh] flex items-center justify-center px-6 pt-14">
 	<div class="w-full max-w-2xl">
 		<!-- Window chrome -->
-		<div class="rounded-xl overflow-hidden border border-ctp-surface0 bg-ctp-mantle/90 shadow-2xl shadow-ctp-crust/50 backdrop-blur-sm">
+		<div class="rounded-xl overflow-hidden border border-ctp-surface0 bg-ctp-mantle shadow-2xl shadow-ctp-crust/50 backdrop-blur-sm">
 			<!-- Title bar -->
-			<div class="flex items-center gap-2 px-4 py-3 border-b border-ctp-surface0 bg-ctp-crust/50">
-				<div class="flex items-center gap-1.5">
-					<div class="w-3 h-3 rounded-full bg-ctp-red/80"></div>
-					<div class="w-3 h-3 rounded-full bg-ctp-yellow/80"></div>
-					<div class="w-3 h-3 rounded-full bg-ctp-green/80"></div>
+			<div class="flex items-center gap-2 px-3 sm:px-4 py-3 border-b border-ctp-surface0 bg-ctp-crust">
+				<div class="flex items-center gap-1.5 shrink-0">
+					<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-ctp-red"></div>
+					<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-ctp-yellow"></div>
+					<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-ctp-green"></div>
 				</div>
-				<div class="flex-1 text-center">
-					<span class="text-[10px] text-ctp-overlay0 font-medium tracking-wide">welcome.md — darosa.dev</span>
+				<div class="flex-1 text-center min-w-0">
+					<span class="text-[10px] text-ctp-overlay0 font-medium tracking-wide truncate block">welcome.md — darosa.dev</span>
 				</div>
-				<div class="w-16"></div>
+				<div class="w-10 sm:w-16 shrink-0"></div>
 			</div>
 
 			<!-- Terminal content -->
-			<div class="p-6 sm:p-8 font-mono text-sm leading-relaxed min-h-[320px]">
+			<div class="p-4 sm:p-8 font-mono text-xs sm:text-sm leading-relaxed min-h-[280px] sm:min-h-[320px]">
 				<div class="text-ctp-subtext0 mb-4">
 					<span>{promptVisible}</span>{#if !typingComplete}<span class="inline-block w-2 h-4 bg-ctp-text align-middle ml-0.5" class:opacity-0={!showCursor}></span>{/if}
 				</div>
