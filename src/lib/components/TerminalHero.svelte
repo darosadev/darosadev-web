@@ -1,0 +1,122 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	const prompt = 'joaquim@darosa.dev:~$ cat welcome.md';
+
+	const lines = [
+		{ text: '# welcome.md', class: 'text-ctp-mauve font-bold' },
+		{ text: '', class: '' },
+		{ text: '> hey, i\'m joaquim.', class: 'text-ctp-green' },
+		{ text: '> i build things for the web.', class: 'text-ctp-green' },
+		{ text: '', class: '' },
+		{
+			text: '> currently tinkering with ',
+			class: 'text-ctp-subtext0',
+			suffix: { text: '[svelte], [rust], and [neovim].', class: 'text-ctp-yellow' }
+		},
+		{ text: '', class: '' },
+		{ text: '---', class: 'text-ctp-overlay0' },
+		{ text: '', class: '' },
+		{
+			text: 'find me on: ',
+			class: 'text-ctp-subtext0',
+			suffix: { text: 'github  x  linkedin', class: 'text-ctp-sapphire underline underline-offset-4' }
+		}
+	];
+
+	let promptVisible = $state('');
+	let currentLineIndex = $state(-1);
+	let currentLineText = $state('');
+	let showCursor = $state(true);
+	let typingComplete = $state(false);
+
+	onMount(() => {
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const typeSpeed = prefersReducedMotion ? 0 : 35;
+
+		// Type prompt
+		let promptIndex = 0;
+		const typePrompt = () => {
+			if (promptIndex <= prompt.length) {
+				promptVisible = prompt.slice(0, promptIndex);
+				promptIndex++;
+				setTimeout(typePrompt, typeSpeed);
+			} else {
+				setTimeout(() => {
+					currentLineIndex = 0;
+					typeLine(0, 0);
+				}, 400);
+			}
+		};
+
+		const typeLine = (lineIdx: number, charIdx: number) => {
+			if (lineIdx >= lines.length) {
+				typingComplete = true;
+				return;
+			}
+
+			const line = lines[lineIdx];
+			const fullText = line.text;
+
+			if (charIdx <= fullText.length) {
+				currentLineText = fullText.slice(0, charIdx);
+				setTimeout(() => typeLine(lineIdx, charIdx + 1), typeSpeed);
+			} else {
+				currentLineIndex = lineIdx + 1;
+				currentLineText = '';
+				setTimeout(() => typeLine(lineIdx + 1, 0), typeSpeed * 2);
+			}
+		};
+
+		setTimeout(typePrompt, 500);
+
+		// Blinking cursor
+		const cursorInterval = setInterval(() => {
+			showCursor = !showCursor;
+		}, 530);
+
+		return () => clearInterval(cursorInterval);
+	});
+</script>
+
+<section class="min-h-[90vh] flex items-center justify-center px-6 pt-14">
+	<div class="w-full max-w-2xl">
+		<!-- Window chrome -->
+		<div class="rounded-xl overflow-hidden border border-ctp-surface0 bg-ctp-mantle/90 shadow-2xl shadow-ctp-crust/50 backdrop-blur-sm">
+			<!-- Title bar -->
+			<div class="flex items-center gap-2 px-4 py-3 border-b border-ctp-surface0 bg-ctp-crust/50">
+				<div class="flex items-center gap-1.5">
+					<div class="w-3 h-3 rounded-full bg-ctp-red/80"></div>
+					<div class="w-3 h-3 rounded-full bg-ctp-yellow/80"></div>
+					<div class="w-3 h-3 rounded-full bg-ctp-green/80"></div>
+				</div>
+				<div class="flex-1 text-center">
+					<span class="text-[10px] text-ctp-overlay0 font-medium tracking-wide">welcome.md — darosa.dev</span>
+				</div>
+				<div class="w-16"></div>
+			</div>
+
+			<!-- Terminal content -->
+			<div class="p-6 sm:p-8 font-mono text-sm leading-relaxed min-h-[320px]">
+				<div class="text-ctp-subtext0 mb-4">
+					<span>{promptVisible}</span>{#if !typingComplete}<span class="inline-block w-2 h-4 bg-ctp-text align-middle ml-0.5" class:opacity-0={!showCursor}></span>{/if}
+				</div>
+
+				{#each lines as line, i}
+					{#if i < currentLineIndex}
+						<div class={line.class}>
+							{line.text}
+							{#if line.suffix}
+								<span class={line.suffix.class}>{line.suffix.text}</span>
+							{/if}
+						</div>
+					{:else if i === currentLineIndex}
+						<div class={line.class}>
+							{currentLineText}<span class="inline-block w-2 h-4 bg-ctp-text align-middle ml-0.5" class:opacity-0={!showCursor}></span>
+						</div>
+					{/if}
+				{/each}
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,79 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	onMount(async () => {
+		if (typeof window !== 'undefined') {
+			const gsap = await import('gsap');
+			const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+			gsap.gsap.registerPlugin(ScrollTrigger);
+
+			gsap.gsap.fromTo(
+				'#about-content',
+				{ opacity: 0, y: 30 },
+				{
+					opacity: 1,
+					y: 0,
+					duration: 0.7,
+					ease: 'power2.out',
+					scrollTrigger: {
+						trigger: '#about',
+						start: 'top 75%'
+					}
+				}
+			);
+		}
+	});
+</script>
+
+<section id="about" class="relative z-10 py-24 px-6">
+	<div class="max-w-3xl mx-auto">
+		<div class="flex items-center gap-3 mb-10">
+			<div class="h-px flex-1 bg-ctp-surface0"></div>
+			<span class="text-xs font-medium text-ctp-overlay0 uppercase tracking-widest">About</span>
+			<div class="h-px flex-1 bg-ctp-surface0"></div>
+		</div>
+
+		<div id="about-content" class="rounded-lg border border-ctp-surface0/60 bg-ctp-mantle/60 overflow-hidden">
+			<!-- Fake terminal header -->
+			<div class="flex items-center gap-2 px-4 py-2.5 border-b border-ctp-surface0 bg-ctp-crust/50">
+				<span class="text-[10px] text-ctp-overlay0 font-medium">joaquim@darosa.dev</span>
+				<span class="text-ctp-surface1">:</span>
+				<span class="text-[10px] text-ctp-blue font-medium">~</span>
+				<span class="text-ctp-surface1">$</span>
+				<span class="text-[10px] text-ctp-text font-medium ml-1">whoami</span>
+			</div>
+
+			<div class="p-6 font-mono text-xs leading-relaxed space-y-4">
+				<div class="grid grid-cols-[120px_1fr] gap-2">
+					<span class="text-ctp-blue font-semibold">name</span>
+					<span class="text-ctp-text">Joaquim Rosa</span>
+
+					<span class="text-ctp-blue font-semibold">role</span>
+					<span class="text-ctp-text">Full-stack developer</span>
+
+					<span class="text-ctp-blue font-semibold">location</span>
+					<span class="text-ctp-text">Lisbon, Portugal</span>
+
+					<span class="text-ctp-blue font-semibold">stack</span>
+					<span class="text-ctp-text">TypeScript, Svelte, Rust, Go, Node.js</span>
+
+					<span class="text-ctp-blue font-semibold">editor</span>
+					<span class="text-ctp-text">Neovim (of course)</span>
+
+					<span class="text-ctp-blue font-semibold">os</span>
+					<span class="text-ctp-text">macOS / NixOS</span>
+				</div>
+
+				<div class="pt-2 text-ctp-subtext0">
+					<p>
+						I care about building software that is fast, reliable, and pleasant to use.
+						Most of my work lives at the intersection of web platforms and developer tooling.
+					</p>
+					<p class="mt-2">
+						When not coding, I am probably reading, running, or configuring my dotfiles for the hundredth time.
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
