@@ -20,6 +20,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(3000, 'localhost', () => {
-  console.log('Server running at http://localhost:3000/');
+// server lister on port 3000 on 0.0.0.0 
+server.listen(3000, '0.0.0.0', () => {
+  console.log('Server is running on http://0.0.0.0:3000/');
 });
