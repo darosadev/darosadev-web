@@ -10,6 +10,10 @@
 		let animationId: number;
 		let scrollY = 0;
 		let targetScrollY = 0;
+		let mouseX = -1000;
+		let mouseY = -1000;
+		let targetMouseX = -1000;
+		let targetMouseY = -1000;
 
 		const dpr = window.devicePixelRatio || 1;
 
@@ -20,6 +24,7 @@
 			canvas.height = h * dpr;
 			canvas.style.width = w + 'px';
 			canvas.style.height = h + 'px';
+			ctx!.setTransform(1, 0, 0, 1, 0, 0);
 			ctx!.scale(dpr, dpr);
 		};
 
@@ -27,13 +32,34 @@
 			targetScrollY = window.scrollY;
 		};
 
+		const handleMouseMove = (e: MouseEvent) => {
+			targetMouseX = e.clientX;
+			targetMouseY = e.clientY;
+		};
+
+		const handleMouseLeave = () => {
+			targetMouseX = -1000;
+			targetMouseY = -1000;
+		};
+
 		resize();
 		window.addEventListener('resize', resize);
 		window.addEventListener('scroll', handleScroll, { passive: true });
+		window.addEventListener('mousemove', handleMouseMove, { passive: true });
+		window.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 
 		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		const gridSize = 40;
-		let time = 0;
+		const influenceRadius = 180;
+		const maxSquareSize = 3.5;
+		const minSquareSize = 0.6;
+		const baseAlpha = 0.03;
+		const maxAlpha = 0.22;
+
+		const smoothstep = (edge0: number, edge1: number, x: number) => {
+			const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+			return t * t * (3 - 2 * t);
+		};
 
 		const draw = () => {
 			if (!ctx) return;
@@ -42,14 +68,22 @@
 
 			ctx.clearRect(0, 0, w, h);
 
-			// Smooth scroll interpolation
+			// Smooth interpolation
 			scrollY += (targetScrollY - scrollY) * 0.05;
+			if (!prefersReducedMotion) {
+				mouseX += (targetMouseX - mouseX) * 0.12;
+				mouseY += (targetMouseY - mouseY) * 0.12;
+			} else {
+				mouseX = targetMouseX;
+				mouseY = targetMouseY;
+			}
 
 			const offsetY = scrollY * 0.3;
 			const cols = Math.ceil(w / gridSize) + 1;
 			const rows = Math.ceil(h / gridSize) + 1;
 
-			ctx.strokeStyle = 'rgba(180, 190, 254, 0.06)';
+			// Draw faint grid lines
+			ctx.strokeStyle = 'rgba(180, 190, 254, 0.035)';
 			ctx.lineWidth = 1;
 
 			for (let i = 0; i <= cols; i++) {
@@ -68,27 +102,44 @@
 				ctx.stroke();
 			}
 
-			// Subtle intersection dots
-			if (!prefersReducedMotion) {
-				time += 0.005;
-				for (let i = 0; i <= cols; i++) {
-					for (let j = 0; j <= rows; j++) {
+			// Interactive vertex squares
+			if (mouseX > -500 && mouseY > -500) {
+				const cellCol = Math.floor(mouseX / gridSize);
+				const cellRow = Math.floor((mouseY + offsetY) / gridSize);
+
+				const cellRadius = Math.ceil(influenceRadius / gridSize) + 1;
+
+				const startCol = Math.max(0, cellCol - cellRadius);
+				const endCol = Math.min(cols, cellCol + cellRadius);
+				const startRow = Math.max(0, cellRow - cellRadius);
+				const endRow = Math.min(rows, cellRow + cellRadius);
+
+				for (let i = startCol; i <= endCol; i++) {
+					for (let j = startRow; j <= endRow; j++) {
 						const x = i * gridSize;
 						const y = j * gridSize - (offsetY % gridSize);
-						const dist = Math.sqrt(
-							Math.pow(x - w / 2, 2) + Math.pow(y - h / 2, 2)
-						);
-						const maxDist = Math.sqrt(Math.pow(w / 2, 2) + Math.pow(h / 2, 2));
-						const normalizedDist = dist / maxDist;
-						const pulse = Math.sin(time + normalizedDist * Math.PI * 2) * 0.5 + 0.5;
-						const alpha = (1 - normalizedDist) * pulse * 0.15;
 
-						if (alpha > 0.02) {
-							ctx.fillStyle = `rgba(180, 190, 254, ${alpha})`;
-							ctx.beginPath();
-							ctx.arc(x, y, 1.2, 0, Math.PI * 2);
-							ctx.fill();
-						}
+						const dx = x - mouseX;
+						const dy = y - mouseY;
+						const dist = Math.sqrt(dx * dx + dy * dy);
+
+						if (dist > influenceRadius) continue;
+
+						const t = smoothstep(0, influenceRadius, dist);
+						const intensity = 1 - t;
+
+						const size = minSquareSize + intensity * (maxSquareSize - minSquareSize);
+						const alpha = baseAlpha + intensity * (maxAlpha - baseAlpha);
+
+						if (alpha < 0.02) continue;
+
+						// Muted teal squares
+						const r = 148;
+						const g = 226;
+						const b = 213;
+
+						ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+						ctx.fillRect(x - size / 2, y - size / 2, size, size);
 					}
 				}
 			}
@@ -102,6 +153,8 @@
 			cancelAnimationFrame(animationId);
 			window.removeEventListener('resize', resize);
 			window.removeEventListener('scroll', handleScroll);
+			window.removeEventListener('mousemove', handleMouseMove);
+			window.removeEventListener('mouseleave', handleMouseLeave);
 		};
 	});
 </script>
