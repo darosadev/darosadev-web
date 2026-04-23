@@ -1,9 +1,32 @@
 <script lang="ts">
+	import { beforeNavigate, afterNavigate } from '$app/navigation';
 	import './layout.css';
 	import GridBackground from '$lib/components/GridBackground.svelte';
 	import Header from '$lib/components/Header.svelte';
+	import ScrollProgressButton from '$lib/components/ScrollProgressButton.svelte';
 
 	let { children } = $props();
+
+	let isDetailPage = $state(false);
+
+	$effect(() => {
+		const path = typeof window !== 'undefined' ? window.location.pathname : '';
+		isDetailPage = path === '/post' || path === '/project';
+	});
+
+	beforeNavigate(() => {
+		// Disable smooth scroll during route transitions so the router's
+		// scroll-to-top happens instantly instead of animating.
+		document.documentElement.style.scrollBehavior = 'auto';
+	});
+
+	afterNavigate(() => {
+		// Re-enable smooth scroll for anchor links and manual scrollToTop.
+		// Also update the detail-page flag so the progress button shows/hides correctly.
+		const path = window.location.pathname;
+		isDetailPage = path === '/post' || path === '/project';
+		document.documentElement.style.scrollBehavior = 'smooth';
+	});
 </script>
 
 <svelte:head>
@@ -21,3 +44,7 @@
 <main class="relative z-10">
 	{@render children()}
 </main>
+
+{#if isDetailPage}
+	<ScrollProgressButton />
+{/if}

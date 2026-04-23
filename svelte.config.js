@@ -12,7 +12,7 @@ const config = {
 				strict: true
 			}),
 			prerender: {
-				entries: ['/'],
+				entries: ['/', '/post', '/project'],
 				origin: 'https://darosa.dev',
 				handleMissingId: 'ignore'
 			}

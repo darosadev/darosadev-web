@@ -22,6 +22,13 @@
 		Micro: '💬'
 	};
 
+	function getCardHref(activity: Activity): string | undefined {
+		if (activity.type === 'Blog') return `/post?slug=${activity.slug}`;
+		if (activity.type === 'Project') return `/project?slug=${activity.slug}`;
+		if (activity.url && activity.url !== '#') return activity.url;
+		return undefined;
+	}
+
 	onMount(async () => {
 		const [storyblokData, goodreadsData, microData] = await Promise.all([
 			fetchActivities(),
@@ -35,7 +42,6 @@
 		activities = all;
 		loading = false;
 
-		// GSAP entrance animations
 		if (typeof window !== 'undefined') {
 			const gsap = await import('gsap');
 			const { ScrollTrigger } = await import('gsap/ScrollTrigger');
@@ -82,50 +88,88 @@
 		{:else}
 			<div class="flex flex-col gap-5">
 				{#each activities as activity}
-					<article class="activity-card group relative rounded-lg border border-ctp-surface0 bg-ctp-mantle hover:border-ctp-surface1 hover:bg-ctp-surface0/40 transition-all duration-300">
-						<!-- Tag badge -->
-						<div class="absolute -top-2.5 left-4">
-							<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full border {tagColors[activity.type]}">
-								<span class="text-[10px]">{typeIcons[activity.type]}</span>
-								{activity.type}
-							</span>
-						</div>
+					{@const href = getCardHref(activity)}
+					{@const isExternal = activity.type !== 'Blog' && activity.type !== 'Project'}
 
-						<div class="p-5 pt-6">
-							<div class="flex items-baseline justify-between gap-4 mb-2">
-								{#if activity.url}
-									<a
-										href={activity.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										class="text-sm font-semibold text-ctp-text hover:text-ctp-lavender transition-colors duration-200"
-									>
+					{#if href}
+						<a
+							href={href}
+							target={isExternal ? '_blank' : undefined}
+							rel={isExternal ? 'noopener noreferrer' : undefined}
+							class="activity-card group relative rounded-lg border border-ctp-surface0 bg-ctp-mantle hover:border-ctp-surface1 hover:bg-ctp-surface0/40 transition-all duration-300 block"
+						>
+							<!-- Tag badge -->
+							<div class="absolute -top-2.5 left-4">
+								<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full border {tagColors[activity.type]}">
+									<span class="text-[10px]">{typeIcons[activity.type]}</span>
+									{activity.type}
+								</span>
+							</div>
+
+							<div class="p-5 pt-6">
+								<div class="flex items-baseline justify-between gap-4 mb-2">
+									<h3 class="text-sm font-semibold text-ctp-text group-hover:text-ctp-lavender transition-colors duration-200">
 										{activity.title}
-									</a>
-								{:else}
+										{#if isExternal}
+											<span class="text-ctp-overlay0 text-[10px] ml-1">↗</span>
+										{/if}
+									</h3>
+								</div>
+
+								<p class="text-xs text-ctp-subtext0 leading-relaxed mb-3">{activity.excerpt}</p>
+
+								<div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-ctp-overlay0">
+									<time datetime={activity.date}>{formatDate(activity.date)}</time>
+									{#if activity.meta}
+										<span class="text-ctp-surface1">·</span>
+										<span>{activity.meta}</span>
+									{/if}
+									{#if activity.tags && activity.tags.length > 0}
+										<span class="text-ctp-surface1">·</span>
+										<div class="flex flex-wrap gap-1.5">
+											{#each activity.tags as tag}
+												<span class="text-ctp-overlay1">#{tag}</span>
+											{/each}
+										</div>
+									{/if}
+								</div>
+							</div>
+						</a>
+					{:else}
+						<article class="activity-card group relative rounded-lg border border-ctp-surface0 bg-ctp-mantle transition-all duration-300">
+							<!-- Tag badge -->
+							<div class="absolute -top-2.5 left-4">
+								<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full border {tagColors[activity.type]}">
+									<span class="text-[10px]">{typeIcons[activity.type]}</span>
+									{activity.type}
+								</span>
+							</div>
+
+							<div class="p-5 pt-6">
+								<div class="flex items-baseline justify-between gap-4 mb-2">
 									<h3 class="text-sm font-semibold text-ctp-text">{activity.title}</h3>
-								{/if}
-							</div>
+								</div>
 
-							<p class="text-xs text-ctp-subtext0 leading-relaxed mb-3">{activity.excerpt}</p>
+								<p class="text-xs text-ctp-subtext0 leading-relaxed mb-3">{activity.excerpt}</p>
 
-							<div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-ctp-overlay0">
-								<time datetime={activity.date}>{formatDate(activity.date)}</time>
-								{#if activity.meta}
-									<span class="text-ctp-surface1">·</span>
-									<span>{activity.meta}</span>
-								{/if}
-								{#if activity.tags && activity.tags.length > 0}
-									<span class="text-ctp-surface1">·</span>
-									<div class="flex flex-wrap gap-1.5">
-										{#each activity.tags as tag}
-											<span class="text-ctp-overlay1">#{tag}</span>
-										{/each}
-									</div>
-								{/if}
+								<div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-ctp-overlay0">
+									<time datetime={activity.date}>{formatDate(activity.date)}</time>
+									{#if activity.meta}
+										<span class="text-ctp-surface1">·</span>
+										<span>{activity.meta}</span>
+									{/if}
+									{#if activity.tags && activity.tags.length > 0}
+										<span class="text-ctp-surface1">·</span>
+										<div class="flex flex-wrap gap-1.5">
+											{#each activity.tags as tag}
+												<span class="text-ctp-overlay1">#{tag}</span>
+											{/each}
+										</div>
+									{/if}
+								</div>
 							</div>
-						</div>
-					</article>
+						</article>
+					{/if}
 				{/each}
 			</div>
 		{/if}

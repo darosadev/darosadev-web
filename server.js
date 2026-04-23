@@ -33,7 +33,8 @@ function getMimeType(filePath) {
 }
 
 const server = http.createServer((req, res) => {
-	let filePath = path.join(STATIC_DIR, req.url === '/' ? 'index.html' : req.url);
+	const urlPath = new URL(req.url || '/', 'http://localhost').pathname;
+	let filePath = path.join(STATIC_DIR, urlPath === '/' ? 'index.html' : urlPath);
 
 	// Security: prevent directory traversal
 	if (!filePath.startsWith(STATIC_DIR)) {
@@ -43,33 +44,48 @@ const server = http.createServer((req, res) => {
 		return;
 	}
 
-	fs.stat(filePath, (err, stats) => {
-		if (err || !stats.isFile()) {
-			// Try serving index.html for SPA routes
-			const indexPath = path.join(STATIC_DIR, 'index.html');
-			fs.readFile(indexPath, (err2, data) => {
-				if (err2) {
-					res.statusCode = 404;
-					res.setHeader('Content-Type', 'text/plain');
-					res.end('Not Found');
+	function tryServe(targetPath, fallbackToIndex = true) {
+		fs.stat(targetPath, (err, stats) => {
+			if (!err && stats.isFile()) {
+				res.statusCode = 200;
+				res.setHeader('Content-Type', getMimeType(targetPath));
+				if (targetPath.includes('/immutable/')) {
+					res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+				}
+				const stream = fs.createReadStream(targetPath);
+				stream.pipe(res);
+				return;
+			}
+
+			if (fallbackToIndex) {
+				// Try .html extension (e.g., /post → /post.html)
+				if (!path.extname(targetPath)) {
+					tryServe(targetPath + '.html', false);
 					return;
 				}
-				res.statusCode = 200;
-				res.setHeader('Content-Type', 'text/html');
-				res.end(data);
-			});
-			return;
-		}
 
-		res.statusCode = 200;
-		res.setHeader('Content-Type', getMimeType(filePath));
-		// Cache static assets
-		if (filePath.includes('/immutable/')) {
-			res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-		}
-		const stream = fs.createReadStream(filePath);
-		stream.pipe(res);
-	});
+				// Fall back to index.html for SPA routes
+				const indexPath = path.join(STATIC_DIR, 'index.html');
+				fs.readFile(indexPath, (err2, data) => {
+					if (err2) {
+						res.statusCode = 404;
+						res.setHeader('Content-Type', 'text/plain');
+						res.end('Not Found');
+						return;
+					}
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'text/html');
+					res.end(data);
+				});
+			} else {
+				res.statusCode = 404;
+				res.setHeader('Content-Type', 'text/plain');
+				res.end('Not Found');
+			}
+		});
+	}
+
+	tryServe(filePath);
 });
 
 server.listen(3000, '0.0.0.0', () => {
