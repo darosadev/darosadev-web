@@ -1,18 +1,27 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { SiteContent } from '$lib/types';
 
+	interface Props {
+		site: SiteContent | null;
+	}
+
+	let { site }: Props = $props();
 	const prompt = 'joaquim@darosa.dev:~$ cat welcome.md';
 
-	const lines = [
-		{ text: '# welcome.md', class: 'text-ctp-mauve font-bold' },
+	let lines = $derived([
+		{ text: `# ${site?.heroFileName ?? 'welcome.md'}`, class: 'text-ctp-mauve font-bold' },
 		{ text: '', class: '' },
-		{ text: '> hey, i\'m joaquim.', class: 'text-ctp-green' },
-		{ text: '> i build things for the web.', class: 'text-ctp-green' },
+		{ text: `> ${site?.heroGreeting ?? "hey, i'm joaquim."}`, class: 'text-ctp-green' },
+		{ text: `> ${site?.heroDescription ?? 'i build things for the web.'}`, class: 'text-ctp-green' },
 		{ text: '', class: '' },
 		{
 			text: '> currently tinkering with ',
 			class: 'text-ctp-subtext0',
-			suffix: { text: '[svelte], [rust], and [neovim].', class: 'text-ctp-yellow' }
+			suffix: {
+				text: site?.heroInterests ?? '[svelte], [rust], and [neovim].',
+				class: 'text-ctp-yellow'
+			}
 		},
 		{ text: '', class: '' },
 		{ text: '---', class: 'text-ctp-overlay0' },
@@ -22,7 +31,7 @@
 			class: 'text-ctp-subtext0',
 			suffix: { text: 'github  x  linkedin', class: 'text-ctp-sapphire underline underline-offset-4' }
 		}
-	];
+	]);
 
 	let promptVisible = $state('');
 	let currentLineIndex = $state(-1);
@@ -32,7 +41,7 @@
 
 	onMount(() => {
 		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		const typeSpeed = prefersReducedMotion ? 0 : 35;
+		const typeSpeed = prefersReducedMotion ? 0 : (site?.heroTypeSpeed ?? 35);
 
 		// Type prompt
 		let promptIndex = 0;

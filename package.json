@@ -7,16 +7,17 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"start": "node server.js",
+		"start": "node build",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/adapter-node": "^5.5.4",
 		"@sveltejs/kit": "^2.57.0",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@tailwindcss/vite": "^4.2.2",
+		"@types/sanitize-html": "^2.16.2",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.4.6",
 		"tailwindcss": "^4.2.2",
@@ -24,8 +25,9 @@
 		"vite": "^8.0.7"
 	},
 	"dependencies": {
+		"@storyblok/js": "^6.3.4",
 		"gsap": "^3.15.0",
 		"lucide-svelte": "^1.0.1",
-		"storyblok-js-client": "^7.3.0"
+		"sanitize-html": "^2.18.1"
 	}
 }

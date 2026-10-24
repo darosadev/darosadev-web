@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-static';
+import adapter from '@sveltejs/adapter-node';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -6,17 +6,9 @@ const config = {
 		// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 		runes: ({ filename }) => filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 	},
-		kit: {
-			adapter: adapter({
-				precompress: false,
-				strict: true
-			}),
-			prerender: {
-				entries: ['/', '/post', '/project'],
-				origin: 'https://darosa.dev',
-				handleMissingId: 'ignore'
-			}
-		}
+	kit: {
+		adapter: adapter()
+	}
 };
 
 export default config;
