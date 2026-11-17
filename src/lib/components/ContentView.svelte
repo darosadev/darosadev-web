@@ -1,22 +1,18 @@
 <script lang="ts">
-	import type { Activity, ActivityType } from '$lib/types';
+	import type { ActivityType, ContentEntry } from '$lib/types';
 	import Footer from './Footer.svelte';
 
 	interface Props {
-		post: Activity | null;
-		notFound: boolean;
+		post: ContentEntry;
+		notFound?: boolean;
 		contentType: ActivityType;
-		loadingLabel?: string;
-		notFoundLabel?: string;
 		fileExtension?: string;
 	}
 
 	let {
 		post,
-		notFound,
+		notFound = false,
 		contentType,
-		loadingLabel = 'loading...',
-		notFoundLabel = 'content not found',
 		fileExtension = 'md'
 	}: Props = $props();
 
@@ -53,7 +49,7 @@
 					<span class="text-ctp-surface1">:</span>
 					<span class="text-[10px] text-ctp-blue font-medium">~</span>
 					<span class="text-ctp-surface1">$</span>
-					<span class="text-[10px] text-ctp-red font-medium ml-1">cat: {notFoundLabel}</span>
+					<span class="text-[10px] text-ctp-red font-medium ml-1">cat: content not found</span>
 				</div>
 				<div class="p-6 font-mono text-xs text-ctp-subtext0">
 					<p>The {contentType.toLowerCase()} you are looking for does not exist.</p>
@@ -123,34 +119,60 @@
 
 					<!-- Body -->
 					<div class="font-mono text-xs sm:text-sm text-ctp-subtext1 leading-relaxed space-y-4">
-						{#if post.content}
-							{#each post.content.split('\n\n') as paragraph}
-								{#if paragraph.startsWith('## ')}
-									<h2 class="text-sm font-semibold text-ctp-text mt-6 mb-2">
-										<span class="text-ctp-mauve">##</span>
-										<span class="ml-1">{paragraph.replace('## ', '')}</span>
-									</h2>
-								{:else if paragraph.startsWith('`') && paragraph.endsWith('`')}
-									<code class="block bg-ctp-surface0 rounded-md px-3 py-2 text-ctp-text font-mono text-xs overflow-x-auto">
-										{paragraph.slice(1, -1)}
-									</code>
-								{:else}
-									<p class="text-ctp-subtext0">{paragraph}</p>
-								{/if}
-							{/each}
+						{#if post.bodyHtml}
+							<div class="story-content">{@html post.bodyHtml}</div>
 						{:else}
 							<p class="text-ctp-subtext0 italic">{post.excerpt}</p>
 						{/if}
 					</div>
 				</div>
 			</div>
-		{:else}
-			<!-- Loading -->
-			<div class="flex items-center justify-center py-20">
-				<div class="text-sm text-ctp-overlay0 animate-pulse font-mono">{loadingLabel}</div>
-			</div>
 		{/if}
 	</div>
 </section>
 
 <Footer />
+
+<style>
+	.story-content :global(h1),
+	.story-content :global(h2),
+	.story-content :global(h3) {
+		color: var(--color-ctp-text);
+		font-weight: 600;
+		margin: 1.5rem 0 0.5rem;
+	}
+
+	.story-content :global(p + p),
+	.story-content :global(ul),
+	.story-content :global(ol),
+	.story-content :global(pre) {
+		margin-top: 1rem;
+	}
+
+	.story-content :global(ul),
+	.story-content :global(ol) {
+		padding-left: 1.25rem;
+	}
+
+	.story-content :global(ul) {
+		list-style: disc;
+	}
+
+	.story-content :global(ol) {
+		list-style: decimal;
+	}
+
+	.story-content :global(a) {
+		color: var(--color-ctp-blue);
+		text-decoration: underline;
+		text-underline-offset: 0.25rem;
+	}
+
+	.story-content :global(pre) {
+		overflow-x: auto;
+		border-radius: 0.375rem;
+		background: var(--color-ctp-surface0);
+		padding: 0.75rem;
+		color: var(--color-ctp-text);
+	}
+</style>

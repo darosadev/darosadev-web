@@ -1,5 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { SiteContent } from '$lib/types';
+
+	interface Props {
+		site: SiteContent | null;
+	}
+
+	let { site }: Props = $props();
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
@@ -47,34 +54,34 @@
 			<div class="p-6 font-mono text-xs leading-relaxed space-y-4">
 				<div class="grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-2">
 					<span class="text-ctp-blue font-semibold">name</span>
-					<span class="text-ctp-text">Joaquim Rosa</span>
+					<span class="text-ctp-text">{site?.aboutName ?? 'Joaquim Rosa'}</span>
 
 					<span class="text-ctp-blue font-semibold">role</span>
-					<span class="text-ctp-text">Full-stack developer</span>
+					<span class="text-ctp-text">{site?.aboutRole ?? 'Full-stack developer'}</span>
 
 					<span class="text-ctp-blue font-semibold">location</span>
-					<span class="text-ctp-text">Lisbon, Portugal</span>
+					<span class="text-ctp-text">{site?.aboutLocation ?? 'Lisbon, Portugal'}</span>
 
 					<span class="text-ctp-blue font-semibold">stack</span>
-					<span class="text-ctp-text">TypeScript, Svelte, Rust, Go, Node.js</span>
+					<span class="text-ctp-text">{site?.aboutStack ?? 'TypeScript, Svelte, Rust, Go, Node.js'}</span>
 
 					<span class="text-ctp-blue font-semibold">editor</span>
-					<span class="text-ctp-text">Neovim (of course)</span>
+					<span class="text-ctp-text">{site?.aboutEditor ?? 'Neovim (of course)'}</span>
 
 					<span class="text-ctp-blue font-semibold">os</span>
-					<span class="text-ctp-text">macOS / NixOS</span>
+					<span class="text-ctp-text">{site?.aboutOs ?? 'macOS / NixOS'}</span>
 				</div>
 
-				<div class="pt-2 text-ctp-subtext0">
-					<p>
-						I care about building software that is fast, reliable, and pleasant to use.
-						Most of my work lives at the intersection of web platforms and developer tooling.
-					</p>
-					<p class="mt-2">
-						When not coding, I am probably reading, running, or configuring my dotfiles for the hundredth time.
-					</p>
+				<div class="pt-2 text-ctp-subtext0 about-bio">
+					{@html site?.aboutBioHtml ?? '<p>I care about building software that is fast, reliable, and pleasant to use. Most of my work lives at the intersection of web platforms and developer tooling.</p><p>When not coding, I am probably reading, running, or configuring my dotfiles for the hundredth time.</p>'}
 				</div>
 			</div>
 		</div>
 	</div>
 </section>
+
+<style>
+	.about-bio :global(p + p) {
+		margin-top: 0.5rem;
+	}
+</style>

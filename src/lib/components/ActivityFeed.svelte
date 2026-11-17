@@ -1,12 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fetchActivities } from '$lib/storyblok';
 	import { fetchGoodreads } from '$lib/goodreads';
 	import { fetchMicro } from '$lib/micro';
 	import type { Activity, ActivityType } from '$lib/types';
 
-	let activities = $state<Activity[]>([]);
-	let loading = $state(true);
+	interface Props {
+		activities: Activity[];
+	}
+
+	let { activities: cmsActivities }: Props = $props();
+	let externalActivities = $state<Activity[]>([]);
+	let activities = $derived(
+		[...cmsActivities, ...externalActivities].sort(
+			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+		)
+	);
+	let loading = $state(false);
 
 	const tagColors: Record<ActivityType, string> = {
 		Blog: 'bg-ctp-surface0 text-ctp-blue border-ctp-blue',
@@ -23,23 +32,16 @@
 	};
 
 	function getCardHref(activity: Activity): string | undefined {
-		if (activity.type === 'Blog') return `/post?slug=${activity.slug}`;
-		if (activity.type === 'Project') return `/project?slug=${activity.slug}`;
+		if (activity.type === 'Blog') return `/posts/${activity.slug}`;
+		if (activity.type === 'Project') return `/projects/${activity.slug}`;
 		if (activity.url && activity.url !== '#') return activity.url;
 		return undefined;
 	}
 
 	onMount(async () => {
-		const [storyblokData, goodreadsData, microData] = await Promise.all([
-			fetchActivities(),
-			fetchGoodreads(),
-			fetchMicro()
-		]);
+		const [goodreadsData, microData] = await Promise.all([fetchGoodreads(), fetchMicro()]);
 
-		const all = [...storyblokData, ...goodreadsData, ...microData];
-		all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-		activities = all;
+		externalActivities = [...goodreadsData, ...microData];
 		loading = false;
 
 		if (typeof window !== 'undefined') {

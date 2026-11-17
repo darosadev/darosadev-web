@@ -11,7 +11,7 @@
 
 	$effect(() => {
 		const path = typeof window !== 'undefined' ? window.location.pathname : '';
-		isDetailPage = path === '/post' || path === '/project';
+		isDetailPage = path.startsWith('/posts/') || path.startsWith('/projects/');
 	});
 
 	beforeNavigate(() => {
@@ -24,7 +24,7 @@
 		// Re-enable smooth scroll for anchor links and manual scrollToTop.
 		// Also update the detail-page flag so the progress button shows/hides correctly.
 		const path = window.location.pathname;
-		isDetailPage = path === '/post' || path === '/project';
+		isDetailPage = path.startsWith('/posts/') || path.startsWith('/projects/');
 		document.documentElement.style.scrollBehavior = 'smooth';
 	});
 </script>

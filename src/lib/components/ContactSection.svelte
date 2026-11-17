@@ -1,12 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { SiteContent } from '$lib/types';
 
-	const links = [
-		{ label: 'github', href: 'https://github.com/darosadev' },
-		{ label: 'x', href: 'https://x.com/darosadev' },
-		{ label: 'linkedin', href: 'https://www.linkedin.com/in/joaquimacrosa/' },
-		{ label: 'email', href: 'mailto:joaquim@darosa.dev' }
-	];
+	interface Props {
+		site: SiteContent | null;
+	}
+
+	let { site }: Props = $props();
+	let links = $derived([
+		{ label: 'github', href: site?.githubUrl ?? 'https://github.com/darosadev' },
+		{ label: 'x', href: site?.xUrl ?? 'https://x.com/darosadev' },
+		{ label: 'linkedin', href: site?.linkedinUrl ?? 'https://www.linkedin.com/in/joaquimacrosa/' },
+		{ label: 'email', href: `mailto:${site?.contactEmail ?? 'joaquim@darosa.dev'}` }
+	]);
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
@@ -52,8 +58,7 @@
 
 			<div class="p-6 font-mono text-xs leading-relaxed">
 				<p class="text-ctp-subtext0 mb-6">
-					Open to collaborations, interesting projects, or just a chat about tech.
-					Reach out through any of the channels below.
+					{site?.contactText ?? 'Open to collaborations, interesting projects, or just a chat about tech. Reach out through any of the channels below.'}
 				</p>
 
 				<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -73,7 +78,7 @@
 				<div class="mt-6 pt-4 border-t border-ctp-surface0/40">
 					<span class="text-ctp-overlay0">$</span>
 					<span class="text-ctp-green ml-1">echo</span>
-					<span class="text-ctp-peach ml-1">"joaquim@darosa.dev"</span>
+					<span class="text-ctp-peach ml-1">"{site?.contactEmail ?? 'joaquim@darosa.dev'}"</span>
 				</div>
 			</div>
 		</div>
