@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { beforeNavigate, afterNavigate } from '$app/navigation';
+	import type { Snippet } from 'svelte';
+	import type { LayoutData } from './$types';
 	import './layout.css';
 	import GridBackground from '$lib/components/GridBackground.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import ScrollProgressButton from '$lib/components/ScrollProgressButton.svelte';
 
-	let { children } = $props();
+	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
 	let isDetailPage = $state(false);
 
@@ -39,7 +41,7 @@
 </svelte:head>
 
 <GridBackground />
-<Header />
+<Header navItems={data.site?.navItems} />
 
 <main class="relative z-10">
 	{@render children()}

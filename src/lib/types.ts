@@ -20,7 +20,13 @@ export interface ContentEntry extends Activity {
 	seoDescription?: string;
 }
 
+export interface NavigationItem {
+	label: string;
+	href: string;
+}
+
 export interface SiteContent {
+	navItems?: NavigationItem[];
 	heroEnabled?: boolean;
 	heroTypeSpeed?: number;
 	heroFileName?: string;

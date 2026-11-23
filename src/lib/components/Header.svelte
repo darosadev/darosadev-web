@@ -1,15 +1,22 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { NavigationItem } from '$lib/types';
 
-	let menuOpen = $state(false);
-	let menuMounted = $state(false);
-
-	const navItems = [
+	const defaultNavItems: NavigationItem[] = [
 		{ label: 'Projects', href: '#feed' },
 		{ label: 'Blog', href: '#feed' },
 		{ label: 'About', href: '#about' },
 		{ label: 'Contact', href: '#contact' }
 	];
+
+	interface Props {
+		navItems?: NavigationItem[];
+	}
+
+	let { navItems }: Props = $props();
+	let items = $derived(navItems?.length ? navItems : defaultNavItems);
+	let menuOpen = $state(false);
+	let menuMounted = $state(false);
 
 	function openMenu() {
 		menuMounted = true;
@@ -58,7 +65,7 @@
 
 		<!-- Desktop nav -->
 		<nav class="hidden sm:flex items-center gap-1">
-			{#each navItems as item}
+			{#each items as item}
 				<a
 					href={item.href}
 					class="px-3 py-1.5 text-xs font-medium text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-surface0/50 rounded-md transition-all duration-200"
@@ -128,7 +135,7 @@
 
 		<!-- Menu links -->
 		<nav class="flex flex-col items-center justify-center gap-2 flex-1 px-6 pb-14">
-			{#each navItems as item, i}
+			{#each items as item, i}
 				<a
 					href={item.href}
 					class="w-full max-w-xs text-center px-6 py-4 text-2xl font-medium text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-surface0/30 rounded-xl transition-all duration-300 ease-out"

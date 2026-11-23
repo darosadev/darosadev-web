@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { renderRichText } from '@storyblok/js';
 import sanitizeHtml from 'sanitize-html';
-import type { Activity, ContentEntry, SiteContent } from '$lib/types';
+import type { Activity, ContentEntry, NavigationItem, SiteContent } from '$lib/types';
 
 const API_URL = 'https://api.storyblok.com/v2/cdn';
 
@@ -9,8 +9,14 @@ interface StoryblokAsset {
 	filename?: string;
 }
 
+interface StoryblokNavigationItem {
+	label?: string;
+	url?: { url?: string } | string;
+}
+
 interface StoryblokContent {
 	component: string;
+	nav_items?: StoryblokNavigationItem[];
 	hero_enabled?: boolean;
 	hero_type_speed?: string | number;
 	title?: string;
@@ -67,6 +73,16 @@ function parseTypeSpeed(value: string | number | undefined): number | undefined 
 	if (value === undefined || value === null || value === '') return undefined;
 	const n = Number(value);
 	return Number.isFinite(n) && n >= 0 ? n : undefined;
+}
+
+function toNavigationItems(items: StoryblokNavigationItem[] | undefined): NavigationItem[] | undefined {
+	if (!items) return undefined;
+
+	return items.flatMap((item) => {
+		const label = item.label?.trim();
+		const href = getUrl(item.url)?.trim();
+		return label && href ? [{ label, href }] : [];
+	});
 }
 
 function getToken(): string {
@@ -134,6 +150,7 @@ export async function getSite(fetcher: typeof fetch): Promise<SiteContent | null
 
 	const content = response.story.content;
 	return {
+		navItems: toNavigationItems(content.nav_items),
 		heroEnabled: content.hero_enabled,
 		heroTypeSpeed: parseTypeSpeed(content.hero_type_speed),
 		heroFileName: content.hero_file_name,

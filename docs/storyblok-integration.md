@@ -11,7 +11,7 @@ This document covers the work introduced on `build/storyblok` relative to `feat/
 - Render Storyblok rich text as sanitized HTML.
 - Replace query-string detail pages with dynamic post and project routes.
 - Add route-level caching, canonical URLs, and social/SEO metadata.
-- Make the hero, about section, contact details, and activity feed CMS-driven while retaining local presentation fallbacks.
+- Make the navbar, hero, about section, contact details, and activity feed CMS-driven while retaining local presentation fallbacks.
 - Continue loading Goodreads and Micro activity in the browser and merge it with CMS activity.
 - Serve the application with SvelteKit's Node adapter rather than prerendering it as a static site.
 
@@ -62,6 +62,7 @@ The story at `home` supports the following fields. Every homepage field is optio
 | `hero_greeting` | Sets the greeting line. |
 | `hero_description` | Sets the description line. |
 | `hero_interests` | Sets the highlighted interests line. |
+| `nav_items` | Supplies the ordered navbar links as `nav_item` blocks. |
 | `github_url`, `x_url`, `linkedin_url` | Set contact/social links; strings and Storyblok link objects are supported. |
 | `about_name`, `about_role`, `about_location` | Populate the about panel. |
 | `about_stack`, `about_editor`, `about_os` | Populate the remaining about metadata. |
@@ -70,6 +71,17 @@ The story at `home` supports the following fields. Every homepage field is optio
 | `contact_email` | Sets both the email link and the displayed terminal email. |
 
 The previous local content remains as the fallback for missing home fields. If the `home` story does not exist, the site content is `null` and those fallbacks are used. The previous mock post/project activity is not retained.
+
+### Navbar items
+
+To select and order navbar items in Storyblok:
+
+1. Create a nestable `nav_item` component with a `label` single-line text field and a `url` Link field (or a single-line text field for anchor URLs).
+2. Add a `nav_items` Blocks field to the `home` content type and allow `nav_item` blocks.
+3. Add, remove, and reorder the blocks in the `home` story. For example, use `Projects` → `#feed`, `Blog` → `#feed`, `About` → `#about`, and `Contact` → `#contact`.
+4. Publish the `home` story.
+
+Both desktop and mobile navigation use this ordered list on the homepage and detail pages. Items missing a non-empty label or URL are ignored. If `nav_items` is missing or empty, the original four local navigation items are used as a fallback.
 
 ### Post and project stories
 
@@ -90,11 +102,15 @@ Posts live below `posts/`; projects live below `projects/`. Their slugs form the
 
 ### Server loading and caching
 
-`src/routes/+page.server.ts` now supplies the page with `site` and `activities` data. Homepage responses use:
+`src/routes/+layout.server.ts` supplies `site` data to the shared layout on every route. `src/routes/+page.server.ts` supplies homepage `activities` data without requesting the home story a second time. Homepage responses use:
 
 ```text
 cache-control: public, max-age=60, s-maxage=300, stale-while-revalidate=600
 ```
+
+### Header
+
+`src/routes/+layout.svelte` passes `site.navItems` to `Header.svelte`. The header renders the CMS-selected items in both its desktop navigation and mobile overlay, preserving their Storyblok order and retaining the original items when no CMS items are configured.
 
 ### Hero
 
@@ -146,7 +162,7 @@ Sanitization applies to both entry bodies and the home biography:
 - Images allow `src`, `alt`, `title`, `width`, and `height`.
 - URL attributes are limited to `http`, `https`, and `mailto` schemes.
 
-`ContentView.svelte` now renders `bodyHtml`, falls back to the excerpt when no body exists, and no longer needs the old client-loading state. Styling was added for rich-text headings, paragraphs, lists, links, and code blocks. `ContentEntry` adds `bodyHtml`, `seoTitle`, and `seoDescription`; `SiteContent` defines the CMS-backed home fields.
+`ContentView.svelte` now renders `bodyHtml`, falls back to the excerpt when no body exists, and no longer needs the old client-loading state. Styling was added for rich-text headings, paragraphs, lists, links, and code blocks. `ContentEntry` adds `bodyHtml`, `seoTitle`, and `seoDescription`; `SiteContent` defines the CMS-backed home fields, including typed `NavigationItem` entries for the navbar.
 
 ## Runtime and dependency changes
 
@@ -171,11 +187,13 @@ The application now requires a Node runtime and a configured Storyblok token for
 | `svelte.config.js` | Switched to the Node adapter and removed static prerender settings. |
 | `src/lib/server/storyblok.ts` | Added typed server requests, normalization, rich-text rendering, and sanitization. |
 | `src/lib/storyblok.ts` | Removed browser API access and mock content. |
-| `src/lib/types.ts` | Added `ContentEntry` and `SiteContent`. |
-| `src/routes/+page.server.ts` | Added home/activity server loading and cache headers. |
+| `src/lib/types.ts` | Added `ContentEntry`, `SiteContent`, and typed CMS navigation items. |
+| `src/routes/+layout.server.ts` | Loads shared site settings and navbar items on every route. |
+| `src/routes/+page.server.ts` | Added activity server loading and homepage cache headers; shared site loading lives in the layout. |
 | `src/routes/+page.svelte` | Connected CMS data to homepage sections and conditional hero rendering. |
 | `src/routes/+layout.ts` | Removed global prerendering. |
-| `src/routes/+layout.svelte` | Updated detail-route detection. |
+| `src/routes/+layout.svelte` | Updated detail-route detection and connected CMS navigation items to the header. |
+| `src/lib/components/Header.svelte` | Added ordered CMS navigation items for desktop and mobile with local fallbacks. |
 | `src/lib/components/TerminalHero.svelte` | Added configurable hero content and typing speed. |
 | `src/lib/components/ActivityFeed.svelte` | Added server-provided CMS activity, external activity merging, and new links. |
 | `src/lib/components/AboutSection.svelte` | Added CMS fields, rich-text biography, and fallbacks. |
